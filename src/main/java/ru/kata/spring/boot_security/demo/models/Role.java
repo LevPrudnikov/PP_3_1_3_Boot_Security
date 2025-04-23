@@ -2,7 +2,15 @@ package ru.kata.spring.boot_security.demo.models;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+import javax.persistence.OneToMany;
+import javax.persistence.CascadeType;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,7 +24,7 @@ public class Role implements GrantedAuthority {
     private String name;
 
     @Transient
-    @ManyToMany(mappedBy = "roles")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "role")
     private Set<User> users;
 
     public Role() {
@@ -51,6 +59,19 @@ public class Role implements GrantedAuthority {
         return getName();
     }
 
+    public void addRoleToUser(User user) {
+        if (users == null) {
+            users = new HashSet<User>();
+        }
+        users.add(user);
+    }
+
+    public void deleteUser(User user) {
+        if (users == null) {
+            users = new HashSet<User>();
+        } else users.remove(user);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,9 +87,6 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String toString() {
-        return "Role{" +
-                "id=" + getId() +
-                ", name='" + getName() + '\'' +
-                '}';
+        return getName();
     }
 }
