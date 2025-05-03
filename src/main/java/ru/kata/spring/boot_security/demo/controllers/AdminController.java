@@ -16,6 +16,7 @@ import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/admin")
@@ -29,21 +30,12 @@ public class AdminController {
     }
 
     @GetMapping
-    public String displayAllUser(Model model){
+    public String displayAllUser(Principal principal, Model model){
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("user", user);
         model.addAttribute("users",userService.getUsers());
+        model.addAttribute("roles", roleService.getRoles());
         return "admin/index";
-    }
-
-    @GetMapping("/show")
-    public String showUser(@RequestParam("id") Long id, Model model){
-        model.addAttribute("user",userService.getUserById(id));
-        return "admin/show";
-    }
-
-    @GetMapping("/new")
-    public String newUser(@ModelAttribute("user") User user, Model model){
-        model.addAttribute("allRoles", roleService.getRoles());
-        return "admin/new";
     }
 
     @PostMapping("/new")
@@ -56,13 +48,6 @@ public class AdminController {
         user.setRole(roleService.getRole(role_id));
         userService.addUser(user);
         return "redirect:/admin";
-    }
-
-    @GetMapping("/edit")
-    public String editUser(@RequestParam("id") Long id, Model model){
-        model.addAttribute("user",userService.getUserById(id));
-        model.addAttribute("allRoles", roleService.getRoles());
-        return "admin/edit";
     }
 
     @PatchMapping("/edit")
